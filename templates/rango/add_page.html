@@ -1,36 +1,32 @@
-<!DOCTYPE html>
-{% extends 'rango/base.html' %}
+{% extends "rango/base.html" %}
 {% load staticfiles %}
 
 {% block title_block %}
-    {{ category.name }}
+	Add Page
 {% endblock %}
 
 {% block body_block %}
-
-        <head>
-	        <title>Rango - Add Page</title>
-	    </head>
-	    <body>
+		{% if user.is_authenticated %}
 			{% if category %}
+			<h1>Add a Page to {{ category.name }}</h1>
 
-	        <h1>Add a Page to {{category.name}}</h1>
-	        <form id="page_form" method="post" action="/rango/category/{{ category.slug }}/add_page/">
-	            {% csrf_token %}
-	            {% for hidden in form.hidden_fields %}
-	                {{ hidden }}
-	            {% endfor %}
-	            {% for field in form.visible_fields %}
-	                {{ field.errors }}
-	                {{ field.help_text }}
-	                {{ field }}
-	            {% endfor %}
-	            <input type="submit" name="submit" value="Add Page" />
-	        </form>
-
+			<form id="page_form" method="post" action="/rango/category/{{ category.slug }}/add_page/">
+				{% csrf_token %}
+				{% for hidden in form.hidden_fields %}
+					{{ hidden }}
+				{% endfor %}
+				{% for field in form.visible_fields %}
+					{{ field.errors }}
+					{{ field.help_text }}
+					{{ field }}
+				{% endfor %}
+				<input type="submit" name="submit" value="Create Page"/>
+			</form>
 			{% else %}
-				The specified category does not exist!
-			{% endif%}
+				A category by this name does not exist
+			{% endif %}
+		{% else %}
+		You do not have access to this page, please make an account to access it.
+	{% endif %}
 
-	    </body>
 {% endblock %}
