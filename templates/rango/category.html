@@ -1,17 +1,16 @@
 <!DOCTYPE html>
-<html>
+	<html>
     <head>
-        <title>Rango</title>
+        <title>Rango - Category</title>
     </head>
-
     <body>
-        <div>
+        <h1>{{ category.name }}</h1>
+		<div>
         {% if category %}
-            <h1>{{ Category.name }}</h1>
             {% if pages %}
             <ul>
                 {% for page in pages %}
-                    <li><a href="{{ page.url }}">{{ page.title }}</a></li>
+                <li><a href="{{ page.url }}">{{ page.title }}</a></li>
                 {% endfor %}
             </ul>
             {% else %}
@@ -20,10 +19,12 @@
         {% else %}
             The specified category does not exist!
         {% endif %}
-        </div>
-
-        <div>
-            <a href="/rango/">Index</a><br />
-        </div>
+	</div>
+	<div>
+		{% if category %}
+			<a href="/rango/category/{{category.slug}}/add_page/">Add Page</a> <br/>
+		{% endif %}
+		<a href="/rango/">Index</a><br />
+	</div>
     </body>
 </html>
