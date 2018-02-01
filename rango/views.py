@@ -46,57 +46,71 @@ def user_logout(request):
 def restricted(request):
     return HttpResponse("Since you're logged in, you can see this text!")
 
+
 def user_login(request):
     if request.method == 'POST':
+        # Get username and password from request
         username = request.POST.get('username')
         password = request.POST.get('password')
 
+        # Check validity of username and password
         user = authenticate(username=username, password=password)
 
+        # If user exists, the details are correct
         if user:
             if user.is_active:
-                login(request, user)
+                login(request,user)
+                # Send user to homepage
                 return HttpResponseRedirect(reverse('index'))
             else:
-                return HttpResponse("Your Rango account is disabled.")
+                return HttpResponse('Your Rango account is disabled')
         else:
-            print("Invalid login details: {0}, {1}".format(username, password))
-            return HttpResponse("Invalid login details supplied")
-
+            print('Invalid login details: {0}, {1}'.format(username,password))
+            return HttpResponse("Invalid login details supplied.")
     else:
-        return render(request, 'rango/login.html', {})
+        # Not a POST method, so we can't use context variables
+        return render(request, 'rango/login.html',{})
 
 
 def register(request):
+    # Shows whether registration was successful
     registered = False
 
+    # If it's HTTP POST, we want the info from the form
     if request.method == 'POST':
+        # Try to gather information
         user_form = UserForm(data=request.POST)
         profile_form = UserProfileForm(data=request.POST)
 
+        # If the forms are valid, save the user's form data
         if user_form.is_valid() and profile_form.is_valid():
             user = user_form.save()
-            user.set_password(user.password)
-            user.save()
-
             profile = profile_form.save(commit=False)
             profile.user = user
 
-        if 'picture' in request.FILES:
-            profile.picture = request.FILES['picture']
+            # If a picture is provided, we want to include that in the profile
+            if 'picture' in request.FILES:
+                profile.picture = request.FILES('picture')
 
-        profile.save()
+            # Save profile to db
+            profile.save()
 
-        registered = True
+            # Show registration was successful
+            registered = True
+        else:
+            # Print problems to terminal
+            print(user_form.errors, profile_form.errors)
     else:
+        # Not HTTP POST, so we present forms for user input
         user_form = UserForm()
         profile_form = UserProfileForm()
 
-    return render(request, 'rango/register.html',
+    # Render template based on context
+    return render(request,
+                  'rango/register.html',
                   {'user_form': user_form,
                    'profile_form': profile_form,
                    'registered': registered})
-
 
 def add_page(request, category_name_slug):
     try:
@@ -154,17 +168,19 @@ def show_category(request, category_name_slug):
 
 
 def index(request):
-    request.session.set_test_cookie()
-    category_list = Category.objects.order_by("-likes")[:5]
-    page_list = Page.objects.order_by("-views")[:5]
-    context_dict = {'categories': category_list, 'pages': page_list}
-
+    category_list = Category.objects.order_by('-likes')[:5]
+    page_list = Page.objects.order_by('-views')[:5]
+    # link to template and provide dictionary for Django variables within templates
+    context_dict = {'categories': category_list,
+                    'pages': page_list}
+    # Call helper function to handle cookies
     visitor_cookie_handler(request)
     context_dict['visits'] = request.session['visits']
 
+    # Get response early so we can gather cookie info
     response = render(request, 'rango/index.html', context_dict)
+    # Get response for client and return it (updating cookies if need be)
     return response
-
 
 def about(request):
     # link to template and provide dictionary for Django variables within templates
