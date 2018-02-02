@@ -12,7 +12,7 @@ from rango.forms import UserForm, UserProfileForm
 from datetime import datetime
 
 
-def get_server_side_cookie(request, cookie, default_val=None):
+def get_server_side_cookie(request,cookie,default_val=None):
     val = request.session.get(cookie)
     if not val:
         val = default_val
@@ -20,18 +20,16 @@ def get_server_side_cookie(request, cookie, default_val=None):
 
 
 def visitor_cookie_handler(request):
-    visits = int(request.COOKIES.get('visits', '1'))
-
-    last_visit_cookie = request.COOKIES.get('last_visit', str(datetime.now()))
-    last_visit_time = datetime.strptime(last_visit_cookie[:-7],
-                                       '%Y-%m-%d %H:%M:%S')
+    visits = int(get_server_side_cookie(request,'visits','1'))
+    last_visit_cookie = get_server_side_cookie(request,'last_visit', str(datetime.now()))
+    last_visit_time = datetime.strptime(last_visit_cookie[:-7], '%Y-%m-%d %H:%M:%S')
 
     if (datetime.now() - last_visit_time).days > 0:
-        visits += 1
+        visits = visits + 1
         request.session['last_visit'] = str(datetime.now())
     else:
-        visits = 1
-        request.session['last_visit'] = last_visit_cookie
+         visits = 1
+         request.session['last_visit'] = last_visit_cookie
 
     request.session['visits'] = visits
 
@@ -112,6 +110,7 @@ def register(request):
                    'profile_form': profile_form,
                    'registered': registered})
 
+
 def add_page(request, category_name_slug):
     try:
         category = Category.objects.get(slug=category_name_slug)
@@ -181,6 +180,7 @@ def index(request):
     response = render(request, 'rango/index.html', context_dict)
     # Get response for client and return it (updating cookies if need be)
     return response
+
 
 def about(request):
     # link to template and provide dictionary for Django variables within templates
