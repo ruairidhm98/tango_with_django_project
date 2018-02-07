@@ -28,7 +28,6 @@ def visitor_cookie_handler(request):
         visits = visits + 1
         request.session['last_visit'] = str(datetime.now())
     else:
-        visits = 1
         request.session['last_visit'] = last_visit_cookie
 
     request.session['visits'] = visits
@@ -131,7 +130,7 @@ def add_page(request, category_name_slug):
         else:
             print(form.errors)
 
-    context_dict = {'form':form, 'category': category}
+    context_dict = {'form': form, 'category': category}
 
     return render(request, 'rango/add_page.html', context_dict)
 
